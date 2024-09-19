@@ -59,5 +59,8 @@ agent = create_openai_tools_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
 
 # user="What is the weather like right now in NewYork"
-user="What is pet policy?"
-print(agent_executor.invoke({"input": user}))
+# user="What is pet policy?"
+# print(agent_executor.invoke({"input": user}))
+
+def ask_agent(query):
+    return agent_executor.invoke({"input": query})
