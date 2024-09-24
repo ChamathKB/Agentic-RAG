@@ -10,6 +10,7 @@ from langchain_community.vectorstores import FAISS
 
 from test_tools import WeaApiTool
 from tools import content_retriever
+from configs import OPENAI_MODEL
 from dotenv import load_dotenv
 import os
 
@@ -17,7 +18,7 @@ load_dotenv()
 
 
 llm = ChatOpenAI(
-    model="gpt-3.5-turbo-0125",
+    model=OPENAI_MODEL,
     temperature=0,
     openai_api_key=os.getenv("OPENAI_API_KEY"),
     max_tokens=100,
