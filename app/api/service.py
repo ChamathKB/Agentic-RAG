@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict
 import shutil
 import os
-from engine import ask_agent
+from agent import ask_agent
 
 app = FastAPI()
 UPLOAD_DIR = Path(UPLOAD_DIR)
@@ -24,7 +24,15 @@ def ask(query: Query):
     response = ask_agent(query)
     return {"response": response}
 
-async def upload_embeddings(file: UploadFile = File(...)) -> Dict:
+
+@app.post("/api/create_collection")
+def create_collection(collection_name: str):
+    # TODO: add collection creating process
+    return {"message": "Collection created successfully!"}
+
+
+@app.post("/api/upload_docs")
+async def upload_docs(file: UploadFile = File(...)) -> Dict:
     """
     Uploads preprocessed data with embeddings to a Qdrant collection.
 
