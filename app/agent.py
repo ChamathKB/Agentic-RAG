@@ -8,8 +8,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import FAISS
 
-from test_tools import WeaApiTool
-from tools import content_retriever
+from tools.test_tools import WeaApiTool
+from tools.tools import content_retriever
 from configs import OPENAI_MODEL
 from dotenv import load_dotenv
 import os
