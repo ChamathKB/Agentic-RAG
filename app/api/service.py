@@ -8,12 +8,15 @@ from agent import ask_agent
 from vector_store import VectorStore
 from data_handler import DataPreprocessor
 
+
 app = FastAPI()
 UPLOAD_DIR = Path(UPLOAD_DIR)
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+
 class Query(BaseModel):
     query: str
+
 
 @app.get("/")
 def root():
@@ -21,7 +24,7 @@ def root():
 
 
 @app.post("/api/query")
-def ask(query: Query):
+def ask(query: Query, collection_name: str) -> Dict:
     """
     Handles queries and returns the response from the agent.
 
@@ -32,12 +35,12 @@ def ask(query: Query):
         dict: A dictionary containing the agent's response.
     """
 
-    response = ask_agent(query)
+    response = ask_agent(query, collection_name)
     return {"response": response}
 
 
 @app.post("/api/create_collection")
-def create_collection(collection_name: str):
+def create_collection(collection_name: str) -> Dict:
     """
     Creates a new Qdrant collection.
 
@@ -54,7 +57,11 @@ def create_collection(collection_name: str):
 
 
 @app.post("/api/upload_docs")
-async def upload_docs(file: UploadFile = File(...), collection_name: str = Form(...)) -> Dict:
+async def upload_docs(file: UploadFile = File(...),
+                      collection_name: str = Form(...),
+                      chunk_size: int = Form(1000),
+                      chunk_overlap: int = Form(50)
+                      ) -> Dict:
     """
     Uploads preprocessed data with embeddings to a Qdrant collection.
 
@@ -75,12 +82,11 @@ async def upload_docs(file: UploadFile = File(...), collection_name: str = Form(
     with open(file_path, "wb") as buffer:
         buffer.write(content)
 
-    docs = DataPreprocessor(UPLOAD_DIR).preprocess(filename)
+    preprocessor = DataPreprocessor(UPLOAD_DIR, filename, chunk_size, chunk_overlap)
+    docs = preprocessor(filename)
     if docs is None:
         raise HTTPException(status_code=400, detail="Invalid file format")
-    
-    uploader = VectorStore(collection_name)
-    uploader.add_documents(content)
+
 
     vector_store = VectorStore(collection_name)
 
