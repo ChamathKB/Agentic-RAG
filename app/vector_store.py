@@ -1,7 +1,10 @@
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
+from langchain.tools.retriever import create_retriever_tool
+
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
+
 from typing import List, Any
 from configs import QDRANT_URL, EMBEDDING_MODEL
 
@@ -61,3 +64,14 @@ class VectorStore:
 
         vector_store = self.get_vector_store()
         return vector_store.similarity_search(query, k=k)
+    
+    def content_retriever_tool(self):
+        vector_store = self.get_vector_store()
+        retriever = vector_store.as_retriever()
+        retriever_tool = create_retriever_tool(
+            retriever,
+            name="query_tool",
+            description="Use this tool when you need to answer questions about the context provided."
+            )
+        
+        return retriever_tool

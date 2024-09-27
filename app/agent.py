@@ -10,6 +10,7 @@ from langchain_community.vectorstores import FAISS
 
 from tools.test_tools import WeaApiTool
 from tools.tools import content_retriever
+from vector_store import VectorStore
 from configs import OPENAI_MODEL
 from dotenv import load_dotenv
 import os
@@ -25,19 +26,20 @@ llm = ChatOpenAI(
     verbose=True,
 )
 
+def ask_agent(query, collection_name):
 
-retriever_tool = content_retriever()
+    qdrant_vectorstore = VectorStore(collection_name)
+    retriever_tool = qdrant_vectorstore.content_retriever_tool()
 
-tools = [WeaApiTool(), retriever_tool]
-
-
-
-prompt = hub.pull("hwchase17/openai-tools-agent")
+    tools = [WeaApiTool(), retriever_tool]
 
 
-agent = create_openai_tools_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
+
+    prompt = hub.pull("hwchase17/openai-tools-agent")
 
 
-def ask_agent(query):
+    agent = create_openai_tools_agent(llm, tools, prompt)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
+
+
     return agent_executor.invoke({"input": query})
