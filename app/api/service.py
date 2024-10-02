@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from pydantic import BaseModel
 from configs import OPENAI_MODEL, UPLOAD_DIR
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 import os
 from agent import ask_agent
 from vector_store import VectorStore
@@ -104,3 +104,21 @@ async def upload_docs(file: UploadFile = File(...),
         return {"message": "Embeddings uploaded successfully!"}
     else:
         return {"message": "Upload failed."}
+    
+
+@app.delete("/api/delete_docs")
+def delete_docs(collection_name: str, ids: List[str]) -> Dict:
+    """
+    Deletes documents from a Qdrant collection.
+
+    Args:
+        collection_name (str): The name of the collection to delete documents from.
+        ids (List[str]): A list of document IDs to delete.
+
+    Returns:
+        dict: A dictionary containing a success message.
+    """
+
+    vector_store = VectorStore(collection_name)
+    vector_store.delete_documents(ids)
+    return {"message": f"{collection_name} collection documents deleted successfully!"}
