@@ -6,6 +6,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 
 from typing import List, Any
+from uuid import uuid4
 from configs import QDRANT_URL, EMBEDDING_MODEL
 
 
@@ -47,7 +48,8 @@ class VectorStore:
             raise ValueError("docs must be a list of dictionaries.")
 
         vector_store = self.get_vector_store()
-        vector_store.add_documents(docs)
+        ids = [str(uuid4()) for _ in range(len(docs))]  
+        vector_store.add_documents(documents=docs, ids=ids)
 
     def delete_documents(self, ids: List[str]) -> None:
         if not isinstance(ids, list) or not all(isinstance(doc_id, str) for doc_id in ids):
