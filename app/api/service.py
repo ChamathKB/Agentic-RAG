@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Dict, List
 import os
 from agent import ask_agent
-from vector_store import VectorStore
-from data_handler import DataPreprocessor
+from db.vector_store import VectorStore
+from db.data_handler import DataPreprocessor
 
 
 app = FastAPI()
