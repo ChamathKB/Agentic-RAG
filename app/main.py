@@ -2,11 +2,12 @@ from fastapi import FastAPI
 # from contextlib import asynccontextmanager
 from app.db.mongodb import mongodb
 from app.db.redis import redis
-from app.routes import queries
+from app.routes import queries, knowledgebases
 
 app = FastAPI()
 
 app.include_router(queries.router, prefix="/queries")
+app.include_router(knowledgebases.router, prefix="/knowledgebases")
 
 
 @app.on_event("startup")
