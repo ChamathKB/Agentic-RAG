@@ -8,10 +8,11 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import FAISS
 
-from tools.test_tools import WeaApiTool
-from tools.tools import content_retriever
-from vector_store import VectorStore
-from configs import OPENAI_MODEL
+from app.tools.test_tools import WeaApiTool
+from app.tools.tools import content_retriever
+from app.db.vector_store import VectorStore
+from app.configs import OPENAI_MODEL
+
 from dotenv import load_dotenv
 import os
 
@@ -41,5 +42,5 @@ def ask_agent(query, collection_name):
     agent = create_openai_tools_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
 
-
-    return agent_executor.invoke({"input": query})
+    agent_response = agent_executor.invoke({"input": query})
+    return agent_response["output"]
