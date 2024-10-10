@@ -9,7 +9,7 @@ router = APIRouter()
 UPLOAD_DIR = "upload" 
 
 
-@router.post("/knowledgebases/create_collection")
+@router.post("/create_collection")
 def create_collection(collection_name: str) -> Dict:
     """
     Creates a new Qdrant collection.
@@ -26,7 +26,7 @@ def create_collection(collection_name: str) -> Dict:
     return {"message": f"{collection_name} collection created successfully!"}
 
 
-@router.post("/knowledgebases/upload_docs")
+@router.post("/upload_docs")
 async def upload_docs(file: UploadFile = File(...),
                       collection_name: str = Form(...),
                       chunk_size: int = Form(1000),
@@ -77,7 +77,7 @@ async def upload_docs(file: UploadFile = File(...),
         raise HTTPException(status_code=500, detail=f"Document upload failed: {str(e)}")
     
     
-@router.delete("/knowledgebases/delete_docs")
+@router.delete("/delete_docs")
 def delete_docs(collection_name: str, ids: List[str]) -> Dict:
     """
     Deletes documents from a Qdrant collection.
