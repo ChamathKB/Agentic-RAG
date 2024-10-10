@@ -7,11 +7,10 @@ from qdrant_client.http.models import Distance, VectorParams
 
 from typing import List, Any
 from uuid import uuid4
-from configs import QDRANT_URL, EMBEDDING_MODEL
+from app.configs import QDRANT_URL, EMBEDDING_MODEL
 
 
-client = QdrantClient(url=QDRANT_URL, 
-                      path="./qdrant_data")
+client = QdrantClient(location=QDRANT_URL)
 
 embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
 
@@ -25,6 +24,7 @@ class VectorStore:
         self.client = client
         self.embeddings = embeddings
 
+
     def create_collection(self) -> None:
         if not isinstance(self.collection_name, str):
             raise ValueError("collection_name must be a string.")
@@ -35,6 +35,7 @@ class VectorStore:
                 vectors_config=VectorParams(size=3072, distance=Distance.COSINE)
             )
 
+
     def get_vector_store(self) -> QdrantVectorStore:
         vector_store = QdrantVectorStore(
             collection_name=self.collection_name,
@@ -42,6 +43,7 @@ class VectorStore:
             embedding=self.embeddings
         )
         return vector_store
+
 
     def add_documents(self, docs: List[dict]) -> None:
         if not isinstance(docs, list) or not all(isinstance(doc, dict) for doc in docs):
@@ -51,12 +53,14 @@ class VectorStore:
         ids = [str(uuid4()) for _ in range(len(docs))]  
         vector_store.add_documents(documents=docs, ids=ids)
 
+
     def delete_documents(self, ids: List[str]) -> None:
         if not isinstance(ids, list) or not all(isinstance(doc_id, str) for doc_id in ids):
             raise ValueError("ids must be a list of strings.")
 
         vector_store = self.get_vector_store()
         vector_store.delete_documents(ids)
+
 
     def retrieve(self, query: str, k: int = 2) -> Any:
         if not isinstance(query, str):
@@ -66,6 +70,7 @@ class VectorStore:
 
         vector_store = self.get_vector_store()
         return vector_store.similarity_search(query, k=k)
+    
     
     def content_retriever_tool(self):
         vector_store = self.get_vector_store()
