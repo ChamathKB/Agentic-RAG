@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.configs import MONGO_URI, MONGO_DB_NAME
+from app.configs import MONGO_URL, MONGO_DB_NAME
 
 class MongoDB:
     
@@ -7,7 +7,7 @@ class MongoDB:
         self.client: AsyncIOMotorClient = None
 
     async def connect(self):
-        self.client = AsyncIOMotorClient(MONGO_URI, maxPoolSize=10)
+        self.client = AsyncIOMotorClient(MONGO_URL, maxPoolSize=10)
 
     async def close(self):
         self.client.close()

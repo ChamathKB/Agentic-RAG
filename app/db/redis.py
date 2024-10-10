@@ -8,13 +8,13 @@ class Redis:
         self.redis = None
 
     async def connect(self):
-        self.redis = await aioredis.create_redis_pool(REDIS_URL, minsize=5, maxsize=10)
+        self.redis = aioredis.Redis.from_url(REDIS_URL, max_connections=10)
 
     async def close(self):
-        self.redis.close()
-        await self.redis.wait_closed()
+        if self.redis:
+            await self.redis.close()
 
 redis = Redis()
 
 async def get_redis():
-    await redis.redis
+    return redis.redis
