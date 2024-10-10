@@ -1,5 +1,6 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
+from unstructured.partition.auto import partition
 import json
 import csv
 import os
@@ -44,6 +45,18 @@ class DataPreprocessor:
                 docs.append(dict(row))
         return docs
     
+    
+    def _process_files(self, file_path: str):
+        """Processes a markdown, docx, csv files extracting documents and metadata."""
+
+        elements = partition(filename=file_path)
+        docs = [str(el) for el in elements]
+
+        if not docs:
+            raise ValueError("No elements found in the PDF file.")
+        
+        return docs
+
 
     def _load_documents(document):
         """
@@ -100,7 +113,7 @@ class DataPreprocessor:
             elif ext == ".csv":
                 docs = self._process_csv(payload_path)
             else:
-                return None  # Handle unsupported file formats gracefully
+                docs = self._process_files(payload_path)
             
             docs = self._load_documents(docs)
             docs = self._split_documents(docs)
