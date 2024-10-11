@@ -1,5 +1,5 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import UnstructuredFileLoader
 from unstructured.partition.auto import partition
 import json
 import csv
@@ -17,48 +17,21 @@ class DataPreprocessor:
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
 
-    def _process_json(self, file_path: str):
-        """Processes a JSON file, extracting documents and metadata."""
-        with open(file_path, "r") as f:
-            docs = json.load(f)
-        return docs
-
-    def _process_csv(self, file_path: str):
-        """Processes a CSV file, extracting documents and metadata."""
-        docs = []
-        with open(file_path, newline="") as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                docs.append(dict(row))
-        return docs
 
     def _process_files(self, file_path: str):
         """Processes files such as markdown, docx, and csv, extracting documents and metadata."""
-        elements = partition(filename=file_path)
-        docs = [str(el) for el in elements]
-
-        if not docs:
-            raise ValueError("No elements found in the file.")
-        
-        return docs
-
-    def _load_documents(self, file_path: str):
-        """
-        Loads documents from a text file.
-
-        Args:
-            file_path (str): The path to the text file.
-
-        Returns:
-            list: A list of loaded documents.
-        """
         try:
-            loader = TextLoader(file_path)
+            loader = UnstructuredFileLoader(file_path)
             docs = loader.load()
+
+            if not docs:
+                raise ValueError("No elements found in the file.")
+            
             return docs
         except Exception as e:
-            print(f"Error loading document from {file_path}: {e}")
+            print(f"Error processing file '{file_path}': {e}")
             return None
+
 
     def _split_documents(self, docs):
         """
@@ -80,6 +53,7 @@ class DataPreprocessor:
             print(f"Error splitting documents: {e}")
             return None
 
+
     def preprocess(self):
         """
         Preprocesses a data file and returns extracted documents and metadata.
@@ -92,33 +66,15 @@ class DataPreprocessor:
         try:
             ext = os.path.splitext(self.data_file)[1].lower()
 
-            if ext == ".json":
-                docs = self._process_json(file_path)
-            elif ext == ".csv":
-                docs = self._process_csv(file_path)
-            else:
+            if ext in [".md", ".docx", "csv"]:
+                # Process files such as markdown, docx, and csv
                 docs = self._process_files(file_path)
+            else:
+                raise ValueError(f"Unsupported file format: {ext}")
+            
+            doc_chunks = self._split_documents(docs)
 
-            if not docs:
-                print(f"No documents extracted from {self.data_file}.")
-                return None
-
-            documents = []
-            for doc in docs:
-                # Skip loading for JSON/CSV, use as-is
-                if isinstance(doc, dict) or isinstance(doc, str):
-                    doc_chunks = self._split_documents([doc])
-                else:
-                    loaded_doc = self._load_documents(doc)
-                    if loaded_doc:
-                        doc_chunks = self._split_documents(loaded_doc)
-                    else:
-                        continue
-
-                if doc_chunks:
-                    documents.extend(doc_chunks)
-
-            return documents
+            return doc_chunks
 
         except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
             print(f"Error processing data file '{self.data_file}': {e}")
