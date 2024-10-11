@@ -58,7 +58,7 @@ async def upload_docs(file: UploadFile = File(...),
 
         # Process the file to generate document chunks
         preprocessor = DataPreprocessor(UPLOAD_DIR, filename, chunk_size, chunk_overlap)
-        docs = preprocessor(filename)
+        docs = preprocessor.preprocess()
         
         if docs is None:
             raise HTTPException(status_code=400, detail="Invalid file format")
