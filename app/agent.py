@@ -1,12 +1,9 @@
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain.tools.retriever import create_retriever_tool
 from langchain.prompts import PromptTemplate
 from langchain import hub
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import TextLoader
-from langchain_community.vectorstores import FAISS
+import mlflow
 
 from app.tools.test_tools import WeaApiTool
 from app.tools.tools import content_retriever
@@ -18,6 +15,12 @@ import os
 
 load_dotenv()
 
+mlflow.set_experiment("Agentic-RAG")
+mlflow.langchain.autolog(
+    log_models=True,
+    log_input_examples=True,
+    log_model_signatures=True,
+)
 
 llm = ChatOpenAI(
     model=OPENAI_MODEL,

@@ -10,4 +10,6 @@ MONGO_DB_NAME= os.getenv("MONGO_DB_NAME", "agentic_rag_db")
 
 REDIS_URL= os.getenv("REDIS_URL", "redis://localhost:6379")
 
+MLFLOW_TRACKING_URI= os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+
 UPLOAD_DIR="uploads"
