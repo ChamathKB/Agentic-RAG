@@ -1,3 +1,5 @@
 *.env
 *.md
+*.txt
 __pycache__
+/mlruns
