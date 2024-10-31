@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.agent import ask_agent
-from app.models.query import Query
+from app.models.schema import Query
 from app.db.mongodb import get_mongodb, add_conversation_to_db
 from typing import Dict
 
