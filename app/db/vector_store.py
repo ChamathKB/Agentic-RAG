@@ -45,13 +45,14 @@ class VectorStore:
         return vector_store
 
 
-    def add_documents(self, docs: List[dict]) -> None:
+    def add_documents(self, docs: List[dict]) -> List[str]:
         # if not isinstance(docs, list) or not all(isinstance(doc, dict) for doc in docs):
         #     raise ValueError("docs must be a list of dictionaries.")
 
         vector_store = self.get_vector_store()
         ids = [str(uuid4()) for _ in range(len(docs))]  
         vector_store.add_documents(documents=docs, ids=ids)
+        return ids
 
 
     def delete_documents(self, ids: List[str]) -> None:

@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import Dict, List
 import os
 from app.db.vector_store import VectorStore
+from app.db.mongodb import get_mongodb, add_uploaded_docs_to_db, delete_docs_from_db
 from app.db.data_handler import DataPreprocessor
 
 router = APIRouter()
@@ -65,8 +66,12 @@ async def upload_docs(file: UploadFile = File(...),
 
         # Upload the processed data to Qdrant
         vector_store = VectorStore(collection_name)
-        vector_store.add_documents(docs) 
+        doc_ids = vector_store.add_documents(docs) 
         
+        # Save metadata in MongoDB
+        db = await get_mongodb()
+        await add_uploaded_docs_to_db(db, collection_name, filename, doc_ids)
+
         # Remove the temporary file after successful processing
         os.remove(file_path)
         return {"message": "Embeddings uploaded successfully!"}
@@ -78,7 +83,7 @@ async def upload_docs(file: UploadFile = File(...),
     
     
 @router.delete("/delete_docs")
-def delete_docs(collection_name: str, ids: List[str]) -> Dict:
+async def delete_docs(collection_name: str, ids: List[str]) -> Dict:
     """
     Deletes documents from a Qdrant collection.
 
@@ -90,6 +95,15 @@ def delete_docs(collection_name: str, ids: List[str]) -> Dict:
         dict: A dictionary containing a success message.
     """
 
-    vector_store = VectorStore(collection_name)
-    vector_store.delete_documents(ids)
-    return {"message": f"{collection_name} collection documents deleted successfully!"}
+    try:
+        # Delete documents from Qdrant
+        vector_store = VectorStore(collection_name)
+        vector_store.delete_documents(ids)
+        
+        # Remove metadata from MongoDB
+        db = await get_mongodb()
+        result = await delete_docs_from_db(db, collection_name, ids)
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Document deletion failed: {str(e)}")

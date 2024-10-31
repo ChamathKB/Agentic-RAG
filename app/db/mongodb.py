@@ -1,5 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.configs import MONGO_URL, MONGO_DB_NAME
+from app.models.schema import DocIds
+from typing import Dict
 from datetime import datetime
 
 class MongoDB:
@@ -79,3 +81,46 @@ async def add_conversation_to_db(db, sender_id: str, collection_name: str, query
         {"$push": {"conversations": conversation_entry}},
         upsert=True  # Creates the document if it doesn't exist
     )
+
+
+async def add_uploaded_docs_to_db(db, collection_name: str, filename: str, doc_ids: DocIds):
+    """
+    Inserts document metadata into MongoDB after successful upload.
+
+    Args:
+        db (Database): The MongoDB database object.
+        collection_name (str): The name of the Qdrant collection.
+        filename (str): The name of the uploaded file.
+        doc_ids (List[str]): List of document IDs created in Qdrant.
+    """
+    upload_entry = {
+        "collection_name": collection_name,
+        "filename": filename,
+        "doc_ids": doc_ids,
+        "uploaded_at": datetime.utcnow()
+    }
+
+    await db["document_uploads"].insert_one(upload_entry)
+
+
+async def delete_docs_from_db(db, collection_name: str, ids: DocIds) -> Dict:
+    """
+    Removes document metadata from MongoDB after deletion from Qdrant.
+
+    Args:
+        db (Database): The MongoDB database object.
+        collection_name (str): The name of the Qdrant collection.
+        ids (List[str]): List of document IDs to delete.
+
+    Returns:
+        dict: A dictionary confirming the deletion.
+    """
+    delete_result = await db["document_uploads"].update_one(
+        {"collection_name": collection_name},
+        {"$pull": {"doc_ids": {"$in": ids}}}
+    )
+
+    if delete_result.modified_count == 0:
+        return {"message": "No documents found to delete in MongoDB"}
+    
+    return {"message": f"Deleted {len(ids)} documents from MongoDB for collection {collection_name}"}
