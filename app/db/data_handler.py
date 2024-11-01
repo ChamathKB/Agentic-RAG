@@ -1,10 +1,11 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import UnstructuredFileLoader
-from unstructured.partition.auto import partition
+import logging
 import json
-import csv
 import os
 
+
+logger = logging.getLogger(__name__)
 
 class DataPreprocessor:
     """
@@ -77,5 +78,5 @@ class DataPreprocessor:
             return doc_chunks
 
         except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
-            print(f"Error processing data file '{self.data_file}': {e}")
+            logger.debug(f"Error processing data file '{self.data_file}': {e}")
             return None

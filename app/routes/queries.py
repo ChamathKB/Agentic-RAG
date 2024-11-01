@@ -3,8 +3,10 @@ from app.agent import ask_agent
 from app.models.schema import Query
 from app.db.mongodb import get_mongodb, add_conversation_to_db
 from typing import Dict
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/ask")
@@ -28,4 +30,5 @@ async def ask(query: Query, sender_id: str, collection_name: str) -> Dict:
 
         return {"response": response}
     except Exception as e:
+        logger.debug(f"Error in ask endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
