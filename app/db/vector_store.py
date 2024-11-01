@@ -60,7 +60,7 @@ class VectorStore:
             raise ValueError("ids must be a list of strings.")
 
         vector_store = self.get_vector_store()
-        vector_store.delete_documents(ids)
+        vector_store.delete(ids)
 
 
     def retrieve(self, query: str, k: int = 2) -> Any:
