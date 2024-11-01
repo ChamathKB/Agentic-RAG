@@ -8,7 +8,8 @@ import mlflow
 from app.tools.test_tools import WeaApiTool
 from app.tools.tools import content_retriever
 from app.db.vector_store import VectorStore
-from app.configs import OPENAI_MODEL
+from app.models.schema import Query
+from app.configs import OPENAI_MODEL, OPENAI_API_KEY
 
 from dotenv import load_dotenv
 import os
@@ -25,12 +26,12 @@ mlflow.langchain.autolog(
 llm = ChatOpenAI(
     model=OPENAI_MODEL,
     temperature=0,
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    openai_api_key=OPENAI_API_KEY,
     max_tokens=100,
     verbose=True,
 )
 
-def ask_agent(query, collection_name):
+def ask_agent(query: Query, collection_name: str) -> str:
 
     qdrant_vectorstore = VectorStore(collection_name)
     retriever_tool = qdrant_vectorstore.content_retriever_tool()

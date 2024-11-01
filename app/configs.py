@@ -2,6 +2,7 @@ import os
 
 OPENAI_MODEL=os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 EMBEDDING_MODEL=os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 QDRANT_URL=os.getenv("QDRANT_URL", "http://localhost:6333")
 
