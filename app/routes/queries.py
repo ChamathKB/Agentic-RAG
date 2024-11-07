@@ -41,7 +41,7 @@ async def ask(query: Query, sender_id: str, collection_name: str, redis=Depends(
             await redis.hset(conversation_key, mapping=conversation_data)
             await redis.expire(conversation_key, 900)
 
-        response = ask_agent(query, collection_name)
+        response = ask_agent(query, sender_id, collection_name)
 
         db = await get_mongodb()
 
