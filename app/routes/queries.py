@@ -8,6 +8,8 @@ from datetime import datetime
 import logging
 
 router = APIRouter()
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -57,5 +59,5 @@ async def ask(query: Query, sender_id: str, collection_name: str, redis=Depends(
 
         return {"response": response}
     except Exception as e:
-        logger.debug(f"Error in ask endpoint: {e}")
+        logger.error(f"Error in ask endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))

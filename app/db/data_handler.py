@@ -4,7 +4,7 @@ import logging
 import json
 import os
 
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DataPreprocessor:
@@ -30,7 +30,7 @@ class DataPreprocessor:
             
             return docs
         except Exception as e:
-            print(f"Error processing file '{file_path}': {e}")
+            logger.error(f"Error processing file '{file_path}': {e}")
             return None
 
 
@@ -51,7 +51,7 @@ class DataPreprocessor:
             chunked_documents = text_splitter.split_documents(docs)
             return chunked_documents
         except Exception as e:
-            print(f"Error splitting documents: {e}")
+            logger.error(f"Error splitting documents for file '{self.data_file}': {e}")
             return None
 
 
@@ -78,5 +78,5 @@ class DataPreprocessor:
             return doc_chunks
 
         except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
-            logger.debug(f"Error processing data file '{self.data_file}': {e}")
+            logger.error(f"Error processing data file '{self.data_file}': {e}")
             return None
