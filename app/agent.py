@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -8,13 +8,12 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 import mlflow
 
 from app.tools.test_tools import WeaApiTool
-from app.tools.tools import content_retriever
 from app.db.vector_store import VectorStore
 from app.models.schema import Query
 from app.configs import OPENAI_MODEL, OPENAI_API_KEY
 
 from dotenv import load_dotenv
-import os
+
 
 load_dotenv()
 
@@ -58,7 +57,7 @@ def ask_agent(query: Query, sender_id: str, collection_name: str) -> str:
             ]
         )
 
-    agent = create_openai_tools_agent(llm, tools, prompt)
+    agent = create_tool_calling_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
 
     appraisal_agent = RunnableWithMessageHistory(agent_executor, 
