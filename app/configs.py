@@ -15,4 +15,6 @@ MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
 UPLOAD_DIR = "uploads"
 
+# search
 SERPER_API_KEY = os.getenv("SERPER_API_KEY")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
