@@ -8,6 +8,7 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 import mlflow
 
 from app.tools.test_tools import WeaApiTool
+from app.tools.tavily_search import search
 from app.db.vector_store import VectorStore
 from app.models.schema import Query
 from app.configs import OPENAI_MODEL, OPENAI_API_KEY
@@ -46,7 +47,9 @@ def ask_agent(query: Query, sender_id: str, collection_name: str) -> str:
     qdrant_vectorstore = VectorStore(collection_name)
     retriever_tool = qdrant_vectorstore.content_retriever_tool()
 
-    tools = [WeaApiTool(), retriever_tool]
+    search_tool = search()
+
+    tools = [WeaApiTool(), retriever_tool, search_tool]
 
     prompt = ChatPromptTemplate.from_messages(
             [
