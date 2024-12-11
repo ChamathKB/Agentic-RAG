@@ -11,35 +11,17 @@ services:
       - .:/app
     ports:
       - "8000:8000"
-    depends_on:
-      - mongodb
-      - redis
-      - qdrant
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017
-      - REDIS_URL=redis://redis:6379
-      - QDRANT_URL=http://qdrant:6333
-
-  mlflow-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: mlflow_server
-    working_dir: /app
-    volumes:
-      - .:/app
-    ports:
       - "5000:5000"
-    command: mlflow server
     depends_on:
       - mongodb
       - redis
       - qdrant
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017
-      - REDIS_URL=redis://redis:6379
-      - QDRANT_URL=http://qdrant:6333
-      
+    command: >
+      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --reload & \
+      mlflow server --host 0.0.0.0 --port 5000"
+    env_file:
+    - .env
+
   mongodb:
     image: mongo:6.0
     container_name: mongodb
