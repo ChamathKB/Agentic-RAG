@@ -18,3 +18,6 @@ UPLOAD_DIR = "uploads"
 # search
 SERPER_API_KEY = os.getenv("SERPER_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
+# weather
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
