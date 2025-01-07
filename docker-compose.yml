@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   agentic-rag:
@@ -6,9 +5,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: agentic_rag
-    working_dir: /app
+    working_dir: /usr/src/app
     volumes:
-      - .:/app
+      - ./app:/usr/src/app/app
+      - ./requirements.txt:/usr/src/app/requirements.txt
     ports:
       - "8000:8000"
       - "5000:5000"
@@ -17,7 +17,7 @@ services:
       - redis
       - qdrant
     command: >
-      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --reload & \
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload & \
       mlflow server --host 0.0.0.0 --port 5000"
     env_file:
     - .env
