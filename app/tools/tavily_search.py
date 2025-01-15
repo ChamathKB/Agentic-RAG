@@ -3,10 +3,6 @@ from langchain.utilities.tavily_search import TavilySearchAPIWrapper
 
 from app.configs import TAVILY_API_KEY
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 def search():
     search = TavilySearchAPIWrapper(tavily_api_key=TAVILY_API_KEY)

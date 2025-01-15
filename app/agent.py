@@ -13,10 +13,6 @@ from app.db.vector_store import VectorStore
 from app.models.schema import Query
 from app.configs import OPENAI_MODEL, OPENAI_API_KEY
 
-from dotenv import load_dotenv
-
-
-load_dotenv()
 
 mlflow.set_experiment("Agentic-RAG")
 mlflow.langchain.autolog(
