@@ -73,11 +73,13 @@ async def delete_docs_from_db(
 ) -> Dict:
     try:
         delete_result = await db[COLLECTION_DOCUMENT_UPLOADS].update_one(
-            {"collection_name": collection_name},
+            {"doc_ids": {"$in": ids}},
             {"$pull": {"doc_ids": {"$in": ids}}},
         )
         if delete_result.modified_count == 0:
             return {"message": "No documents found to delete in MongoDB"}
-        return {"message": f"Deleted {len(ids)} documents from MongoDB for collection {collection_name}"}
+        return {"message": f"Deleted {len(ids)} documents from MongoDB for collection {collection_name}",
+                "deleted_count": delete_result.modified_count,
+                }
     except Exception as e:
         raise Exception(f"Failed to delete documents: {e}")
