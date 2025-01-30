@@ -16,7 +16,16 @@ embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
 
 
 class VectorStore:
+    """
+    Class for managing vector store operations.
+    """
+
     def __init__(self, collection_name: str):
+        """ 
+        Initialize the VectorStore with a collection name.
+        Args:
+            collection_name (str) : vector database collection
+        """
         if not isinstance(collection_name, str):
             raise ValueError("collection_name must be a string.")
         
@@ -26,6 +35,9 @@ class VectorStore:
 
 
     def create_collection(self) -> None:
+        """
+        Create a new collection in the vector store.
+        """
         if not isinstance(self.collection_name, str):
             raise ValueError("collection_name must be a string.")
 
@@ -37,6 +49,11 @@ class VectorStore:
 
 
     def get_vector_store(self) -> QdrantVectorStore:
+        """
+        Get the vector store for the specified collection.
+        Returns:
+            QdrantVectorStore: The vector store for the specified collection.
+        """
         vector_store = QdrantVectorStore(
             collection_name=self.collection_name,
             client=self.client,
@@ -46,6 +63,13 @@ class VectorStore:
 
 
     def add_documents(self, docs: List[dict]) -> List[str]:
+        """
+        Add documents to the vector store.
+        Args:
+            docs (List[dict]): List of documents to be added.
+        Returns:
+            List[str]: List of document IDs.
+        """
         # if not isinstance(docs, list) or not all(isinstance(doc, dict) for doc in docs):
         #     raise ValueError("docs must be a list of dictionaries.")
 
@@ -56,6 +80,11 @@ class VectorStore:
 
 
     def delete_documents(self, ids: List[str]) -> None:
+        """
+        Delete documents from the vector store.
+        Args:
+            ids (List[str]): List of document IDs to be deleted.
+        """
         if not isinstance(ids, list) or not all(isinstance(doc_id, str) for doc_id in ids):
             raise ValueError("ids must be a list of strings.")
 
@@ -64,6 +93,16 @@ class VectorStore:
 
 
     def retrieve(self, query: str, k: int = 2) -> Any:
+        """
+        Retrieve documents from the vector store based on a query.
+        Args:
+            query (str): The query string.
+            k (int, optional): The number of documents to retrieve. Defaults to 2.
+        Returns:
+            Any: The retrieved documents.
+        Raises:
+            ValueError: If the query is not a string or k is not a positive integer.
+        """
         if not isinstance(query, str):
             raise ValueError("query must be a string.")
         if not isinstance(k, int) or k <= 0:
@@ -74,6 +113,11 @@ class VectorStore:
     
     
     def content_retriever_tool(self):
+        """
+        Create a retriever tool for the vector store.
+        Returns:
+            Any: The retriever tool.
+        """
         vector_store = self.get_vector_store()
         retriever = vector_store.as_retriever()
         retriever_tool = create_retriever_tool(

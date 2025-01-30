@@ -17,4 +17,11 @@ class Redis:
 redis = Redis()
 
 async def get_redis():
+    """
+    Returns the Redis connection instance.
+    
+    Returns:
+        aioredis.Redis: The Redis connection object used for interacting with Redis.
+        None: If Redis connection has not been established yet.
+    """
     return redis.redis
