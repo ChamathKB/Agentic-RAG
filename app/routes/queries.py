@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
-from app.agent import ask_agent
-from app.models.schema import Query
-from app.db.mongodb import get_mongodb, add_conversation_to_db
-from app.db.redis import get_redis
-from typing import Dict
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Dict
+
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.agent import ask_agent
+from app.db.mongodb import add_conversation_to_db, get_mongodb
+from app.db.redis import get_redis
+from app.models.schema import Query
 
 router = APIRouter()
 
@@ -14,7 +16,12 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/ask")
-async def ask(query: Query, sender_id: str, collection_name: str, redis=Depends(get_redis)) -> Dict:
+async def ask(
+    query: Query,
+    sender_id: str,
+    collection_name: str,
+    redis=Depends(get_redis),
+) -> Dict:
     """
     Handles queries and returns the response from the agent.
 
@@ -33,7 +40,7 @@ async def ask(query: Query, sender_id: str, collection_name: str, redis=Depends(
             conversation_data = {
                 "message_count": 1,
                 "last_interaction": datetime.utcnow().isoformat(),
-                "status": "ongoing"
+                "status": "ongoing",
             }
             await redis.hset(conversation_key, mapping=conversation_data)
             await redis.expire(conversation_key, 900)
@@ -47,12 +54,9 @@ async def ask(query: Query, sender_id: str, collection_name: str, redis=Depends(
 
         db = await get_mongodb()
 
-        await add_conversation_to_db(db, sender_id, collection_name, query, response)
+        await add_conversation_to_db(db, sender_id, collection_name, query, response)  # type: ignore
 
-        conversation_data.update({
-            "last_response": response,
-            "status": "responded"
-        })
+        conversation_data.update({"last_response": response, "status": "responded"})
 
         await redis.hset(conversation_key, mapping=conversation_data)
         await redis.expire(conversation_key, 900)

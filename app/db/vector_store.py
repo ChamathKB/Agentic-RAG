@@ -1,14 +1,13 @@
+from typing import Any, List
+from uuid import uuid4
+
+from langchain.tools.retriever import create_retriever_tool
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
-from langchain.tools.retriever import create_retriever_tool
-
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 
-from typing import List, Any
-from uuid import uuid4
-from app.configs import QDRANT_URL, EMBEDDING_MODEL
-
+from app.configs import EMBEDDING_MODEL, QDRANT_URL
 
 client = QdrantClient(location=QDRANT_URL)
 
@@ -21,18 +20,17 @@ class VectorStore:
     """
 
     def __init__(self, collection_name: str):
-        """ 
+        """
         Initialize the VectorStore with a collection name.
         Args:
             collection_name (str) : vector database collection
         """
         if not isinstance(collection_name, str):
             raise ValueError("collection_name must be a string.")
-        
+
         self.collection_name = collection_name
         self.client = client
         self.embeddings = embeddings
-
 
     def create_collection(self) -> None:
         """
@@ -44,9 +42,8 @@ class VectorStore:
         if not self.client.collection_exists(self.collection_name):
             self.client.create_collection(
                 collection_name=self.collection_name,
-                vectors_config=VectorParams(size=3072, distance=Distance.COSINE)
+                vectors_config=VectorParams(size=3072, distance=Distance.COSINE),
             )
-
 
     def get_vector_store(self) -> QdrantVectorStore:
         """
@@ -57,10 +54,9 @@ class VectorStore:
         vector_store = QdrantVectorStore(
             collection_name=self.collection_name,
             client=self.client,
-            embedding=self.embeddings
+            embedding=self.embeddings,
         )
         return vector_store
-
 
     def add_documents(self, docs: List[dict]) -> List[str]:
         """
@@ -74,10 +70,9 @@ class VectorStore:
         #     raise ValueError("docs must be a list of dictionaries.")
 
         vector_store = self.get_vector_store()
-        ids = [str(uuid4()) for _ in range(len(docs))]  
+        ids = [str(uuid4()) for _ in range(len(docs))]
         vector_store.add_documents(documents=docs, ids=ids)
         return ids
-
 
     def delete_documents(self, ids: List[str]) -> None:
         """
@@ -90,7 +85,6 @@ class VectorStore:
 
         vector_store = self.get_vector_store()
         vector_store.delete(ids)
-
 
     def retrieve(self, query: str, k: int = 2) -> Any:
         """
@@ -110,8 +104,7 @@ class VectorStore:
 
         vector_store = self.get_vector_store()
         return vector_store.similarity_search(query, k=k)
-    
-    
+
     def content_retriever_tool(self):
         """
         Create a retriever tool for the vector store.
@@ -123,7 +116,7 @@ class VectorStore:
         retriever_tool = create_retriever_tool(
             retriever,
             name="query_tool",
-            description="Use this tool when you need to answer questions about the context provided."
-            )
-        
+            description="Use this tool when you need to answer questions about the context provided.",
+        )
+
         return retriever_tool
