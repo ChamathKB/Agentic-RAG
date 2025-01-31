@@ -1,8 +1,9 @@
 from fastapi import FastAPI
+
 # from contextlib import asynccontextmanager
 from app.db.mongodb import mongodb
 from app.db.redis import redis
-from app.routes import queries, knowledgebases
+from app.routes import knowledgebases, queries
 
 app = FastAPI()
 
@@ -21,6 +22,7 @@ async def shutdown_db():
     await mongodb.close()
     await redis.close()
 
+
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
 #     await startup_db()
@@ -28,6 +30,7 @@ async def shutdown_db():
 #     await shutdown_db()
 
 # app = FastAPI(lifespan=lifespan)
+
 
 @app.get("/")
 def root():

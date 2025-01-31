@@ -1,13 +1,16 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from typing import Dict, List
 import os
-from app.db.vector_store import VectorStore
-from app.db.mongodb import get_mongodb, add_uploaded_docs_to_db, delete_docs_from_db
+from typing import Dict
+
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+
 from app.db.data_handler import DataPreprocessor
+from app.db.mongodb import add_uploaded_docs_to_db, delete_docs_from_db, get_mongodb
+from app.db.vector_store import VectorStore
+from app.models.schema import DocIds
 
 router = APIRouter()
 
-UPLOAD_DIR = "upload" 
+UPLOAD_DIR = "upload"
 
 
 @router.post("/create_collection")
@@ -21,18 +24,19 @@ def create_collection(collection_name: str) -> Dict:
     Returns:
         dict: A dictionary containing a success message.
     """
-    
+
     vector_store = VectorStore(collection_name)
     vector_store.create_collection()
     return {"message": f"{collection_name} collection created successfully!"}
 
 
 @router.post("/upload_docs")
-async def upload_docs(file: UploadFile = File(...),
-                      collection_name: str = Form(...),
-                      chunk_size: int = Form(1000),
-                      chunk_overlap: int = Form(50)
-                      ) -> Dict:
+async def upload_docs(
+    file: UploadFile = File(...),
+    collection_name: str = Form(...),
+    chunk_size: int = Form(1000),
+    chunk_overlap: int = Form(50),
+) -> Dict:
     """
     Uploads preprocessed data with embeddings to a Qdrant collection.
 
@@ -52,7 +56,7 @@ async def upload_docs(file: UploadFile = File(...),
     # Save the uploaded file temporarily
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     file_path = os.path.join(UPLOAD_DIR, filename)
-    
+
     try:
         with open(file_path, "wb") as buffer:
             buffer.write(content)
@@ -60,17 +64,17 @@ async def upload_docs(file: UploadFile = File(...),
         # Process the file to generate document chunks
         preprocessor = DataPreprocessor(UPLOAD_DIR, filename, chunk_size, chunk_overlap)
         docs = preprocessor.preprocess()
-        
+
         if docs is None:
             raise HTTPException(status_code=400, detail="Invalid file format")
 
         # Upload the processed data to Qdrant
         vector_store = VectorStore(collection_name)
-        doc_ids = vector_store.add_documents(docs) 
-        
+        doc_ids = vector_store.add_documents(docs)
+
         # Save metadata in MongoDB
         db = await get_mongodb()
-        await add_uploaded_docs_to_db(db, collection_name, filename, doc_ids)
+        await add_uploaded_docs_to_db(db, collection_name, filename, doc_ids)  # type: ignore
 
         # Remove the temporary file after successful processing
         os.remove(file_path)
@@ -80,16 +84,16 @@ async def upload_docs(file: UploadFile = File(...),
         if os.path.exists(file_path):
             os.remove(file_path)
         raise HTTPException(status_code=500, detail=f"Document upload failed: {str(e)}")
-    
-    
+
+
 @router.delete("/delete_docs")
-async def delete_docs(collection_name: str, ids: List[str]) -> Dict:
+async def delete_docs(collection_name: str, ids: DocIds) -> Dict:
     """
     Deletes documents from a Qdrant collection.
 
     Args:
         collection_name (str): The name of the collection to delete documents from.
-        ids (List[str]): A list of document IDs to delete.
+        ids (DocIds) : A list of document IDs to delete.
 
     Returns:
         dict: A dictionary containing a success message.
@@ -99,7 +103,7 @@ async def delete_docs(collection_name: str, ids: List[str]) -> Dict:
         # Delete documents from Qdrant
         vector_store = VectorStore(collection_name)
         vector_store.delete_documents(ids)
-        
+
         # Remove metadata from MongoDB
         db = await get_mongodb()
         result = await delete_docs_from_db(db, collection_name, ids)

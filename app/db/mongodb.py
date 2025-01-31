@@ -1,8 +1,10 @@
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from app.configs import MONGO_URL, MONGO_DB_NAME
-from app.models.schema import DocIds, Query, Response
-from typing import Dict
 from datetime import datetime
+from typing import Dict
+
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
+from app.configs import MONGO_DB_NAME, MONGO_URL
+from app.models.schema import DocIds, Query, Response
 
 COLLECTION_CONVERSATIONS = "conversations"
 COLLECTION_DOCUMENT_UPLOADS = "document_uploads"
@@ -41,7 +43,11 @@ async def get_mongodb() -> AsyncIOMotorDatabase:
 
 
 async def add_conversation_to_db(
-    db: AsyncIOMotorDatabase, sender_id: str, collection_name: str, query: Query, response: Response
+    db: AsyncIOMotorDatabase,
+    sender_id: str,
+    collection_name: str,
+    query: Query,
+    response: Response,
 ) -> Dict:
     """
     Add conversation to database
@@ -50,16 +56,16 @@ async def add_conversation_to_db(
         sender_id (str): Unique identifier of the user/sender
         collection_name (str): Name of the collection being queried
         query (Query): User's query object
-        response (Response): LLM Agent response object 
+        response (Response): LLM Agent response object
     Returns:
         Dict: Dictionary containing number of modified documents
-              {"modified_count": int}       
+              {"modified_count": int}
     Raises:
         Exception: If there is an error adding conversation to database
     """
     try:
         conversation_entry = {
-            "query": query.dict(),  
+            "query": query.dict(),
             "response": response,
             "timestamp": datetime.utcnow(),
         }
@@ -74,7 +80,10 @@ async def add_conversation_to_db(
 
 
 async def add_uploaded_docs_to_db(
-    db: AsyncIOMotorDatabase, collection_name: str, filename: str, doc_ids: DocIds
+    db: AsyncIOMotorDatabase,
+    collection_name: str,
+    filename: str,
+    doc_ids: DocIds,
 ) -> Dict:
     """
     Add uploaded docs to database
@@ -102,9 +111,7 @@ async def add_uploaded_docs_to_db(
         raise Exception(f"Failed to add uploaded docs: {e}")
 
 
-async def delete_docs_from_db(
-    db: AsyncIOMotorDatabase, collection_name: str, ids: DocIds
-) -> Dict:
+async def delete_docs_from_db(db: AsyncIOMotorDatabase, collection_name: str, ids: DocIds) -> Dict:
     """
     Delete documents from database
     Args:
@@ -125,8 +132,9 @@ async def delete_docs_from_db(
         )
         if delete_result.modified_count == 0:
             return {"message": "No documents found to delete in MongoDB"}
-        return {"message": f"Deleted {len(ids)} documents from MongoDB for collection {collection_name}",
-                "deleted_count": delete_result.modified_count,
-                }
+        return {
+            "message": f"Deleted {len(ids)} documents from MongoDB for collection {collection_name}",
+            "deleted_count": delete_result.modified_count,
+        }
     except Exception as e:
         raise Exception(f"Failed to delete documents: {e}")
