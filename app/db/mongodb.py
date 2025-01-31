@@ -28,6 +28,13 @@ mongodb = MongoDB()
 
 
 async def get_mongodb() -> AsyncIOMotorDatabase:
+    """
+    Get MongoDB database connection
+    Returns:
+        AsyncIOMotorDatabase: MongoDB database connection object
+    Raises:
+        Exception: If MongoDB client is not connected
+    """
     if mongodb.db is None:
         raise Exception("MongoDB client is not connected.")
     return mongodb.db
@@ -35,7 +42,21 @@ async def get_mongodb() -> AsyncIOMotorDatabase:
 
 async def add_conversation_to_db(
     db: AsyncIOMotorDatabase, sender_id: str, collection_name: str, query: Query, response: Response
-):
+) -> Dict:
+    """
+    Add conversation to database
+    Args:
+        db (AsyncIOMotorDatabase): Database connection object
+        sender_id (str): Unique identifier of the user/sender
+        collection_name (str): Name of the collection being queried
+        query (Query): User's query object
+        response (Response): LLM Agent response object 
+    Returns:
+        Dict: Dictionary containing number of modified documents
+              {"modified_count": int}       
+    Raises:
+        Exception: If there is an error adding conversation to database
+    """
     try:
         conversation_entry = {
             "query": query.dict(),  
@@ -54,7 +75,20 @@ async def add_conversation_to_db(
 
 async def add_uploaded_docs_to_db(
     db: AsyncIOMotorDatabase, collection_name: str, filename: str, doc_ids: DocIds
-):
+) -> Dict:
+    """
+    Add uploaded docs to database
+    Args:
+        db (AsyncIOMotorDatabase) : database
+        collection_name (str) : collection name quried
+        filename (str) : uploaded file name
+        doc_ids (DocIds) : UUIDs of documnets uploaded
+    Return:
+        Dict : Dictionary containing the inserted document's ID
+              {"inserted_id": ObjectId} on success
+    Raises:
+        Exception: If there is an error adding documents to database
+    """
     try:
         upload_entry = {
             "collection_name": collection_name,
@@ -71,6 +105,19 @@ async def add_uploaded_docs_to_db(
 async def delete_docs_from_db(
     db: AsyncIOMotorDatabase, collection_name: str, ids: DocIds
 ) -> Dict:
+    """
+    Delete documents from database
+    Args:
+        db (AsyncIOMotorDatabase): Database connection object
+        collection_name (str): Name of the collection being queried
+        ids (DocIds): List of document IDs to delete
+    Returns:
+        Dict: Dictionary containing deletion status message and count
+              {"message": str, "deleted_count": int} on success
+              {"message": str} if no documents found
+    Raises:
+        Exception: If there is an error deleting documents from database
+    """
     try:
         delete_result = await db[COLLECTION_DOCUMENT_UPLOADS].update_one(
             {"doc_ids": {"$in": ids}},
