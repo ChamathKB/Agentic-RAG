@@ -1,5 +1,4 @@
 import os
-from typing import Dict
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
@@ -14,7 +13,7 @@ UPLOAD_DIR = "upload"
 
 
 @router.post("/create_collection")
-def create_collection(collection_name: str) -> Dict:
+def create_collection(collection_name: str) -> dict:
     """
     Creates a new Qdrant collection.
 
@@ -36,7 +35,7 @@ async def upload_docs(
     collection_name: str = Form(...),
     chunk_size: int = Form(1000),
     chunk_overlap: int = Form(50),
-) -> Dict:
+) -> dict:
     """
     Uploads preprocessed data with embeddings to a Qdrant collection.
 
@@ -87,7 +86,7 @@ async def upload_docs(
 
 
 @router.delete("/delete_docs")
-async def delete_docs(collection_name: str, ids: DocIds) -> Dict:
+async def delete_docs(collection_name: str, ids: DocIds) -> dict:
     """
     Deletes documents from a Qdrant collection.
 

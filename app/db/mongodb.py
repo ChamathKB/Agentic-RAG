@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Dict
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
@@ -48,7 +47,7 @@ async def add_conversation_to_db(
     collection_name: str,
     query: Query,
     response: Response,
-) -> Dict:
+) -> dict:
     """
     Add conversation to database
     Args:
@@ -58,14 +57,14 @@ async def add_conversation_to_db(
         query (Query): User's query object
         response (Response): LLM Agent response object
     Returns:
-        Dict: Dictionary containing number of modified documents
+        dict: dictionary containing number of modified documents
               {"modified_count": int}
     Raises:
         Exception: If there is an error adding conversation to database
     """
     try:
         conversation_entry = {
-            "query": query.dict(),
+            "query": query.model_dump(),
             "response": response,
             "timestamp": datetime.utcnow(),
         }
@@ -84,7 +83,7 @@ async def add_uploaded_docs_to_db(
     collection_name: str,
     filename: str,
     doc_ids: DocIds,
-) -> Dict:
+) -> dict:
     """
     Add uploaded docs to database
     Args:
@@ -93,7 +92,7 @@ async def add_uploaded_docs_to_db(
         filename (str) : uploaded file name
         doc_ids (DocIds) : UUIDs of documnets uploaded
     Return:
-        Dict : Dictionary containing the inserted document's ID
+        dict : dictionary containing the inserted document's ID
               {"inserted_id": ObjectId} on success
     Raises:
         Exception: If there is an error adding documents to database
@@ -111,7 +110,7 @@ async def add_uploaded_docs_to_db(
         raise Exception(f"Failed to add uploaded docs: {e}")
 
 
-async def delete_docs_from_db(db: AsyncIOMotorDatabase, collection_name: str, ids: DocIds) -> Dict:
+async def delete_docs_from_db(db: AsyncIOMotorDatabase, collection_name: str, ids: DocIds) -> dict:
     """
     Delete documents from database
     Args:
@@ -119,7 +118,7 @@ async def delete_docs_from_db(db: AsyncIOMotorDatabase, collection_name: str, id
         collection_name (str): Name of the collection being queried
         ids (DocIds): List of document IDs to delete
     Returns:
-        Dict: Dictionary containing deletion status message and count
+        dict: dictionary containing deletion status message and count
               {"message": str, "deleted_count": int} on success
               {"message": str} if no documents found
     Raises:

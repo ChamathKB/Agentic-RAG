@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 from uuid import uuid4
 
 from langchain.tools.retriever import create_retriever_tool
@@ -58,13 +58,13 @@ class VectorStore:
         )
         return vector_store
 
-    def add_documents(self, docs: List[dict]) -> List[str]:
+    def add_documents(self, docs: list[dict]) -> list[str]:
         """
         Add documents to the vector store.
         Args:
-            docs (List[dict]): List of documents to be added.
+            docs (list[dict]): List of documents to be added.
         Returns:
-            List[str]: List of document IDs.
+            list[str]: List of document IDs.
         """
         # if not isinstance(docs, list) or not all(isinstance(doc, dict) for doc in docs):
         #     raise ValueError("docs must be a list of dictionaries.")
@@ -74,11 +74,11 @@ class VectorStore:
         vector_store.add_documents(documents=docs, ids=ids)
         return ids
 
-    def delete_documents(self, ids: List[str]) -> None:
+    def delete_documents(self, ids: list[str]) -> None:
         """
         Delete documents from the vector store.
         Args:
-            ids (List[str]): List of document IDs to be deleted.
+            ids (list[str]): List of document IDs to be deleted.
         """
         if not isinstance(ids, list) or not all(isinstance(doc_id, str) for doc_id in ids):
             raise ValueError("ids must be a list of strings.")

@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -21,7 +20,7 @@ async def ask(
     sender_id: str,
     collection_name: str,
     redis=Depends(get_redis),
-) -> Dict:
+) -> dict:
     """
     Handles queries and returns the response from the agent.
 
