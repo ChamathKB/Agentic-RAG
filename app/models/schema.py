@@ -3,19 +3,31 @@ from pydantic import BaseModel, Field
 
 
 class Query(BaseModel):
-    query: str
+    query: str = Field(
+        ...,
+        description="The query to be answered by the agent",
+    )
 
 
 class Response(BaseModel):
-    response: str
+    response: str = Field(
+        ...,
+        description="The response from the agent",
+    )
 
 
 class DocIds(BaseModel):
-    ids: list[str]
+    ids: list[str] = Field(
+        ...,
+        description="The ids of the documents to be retrieved",
+    )
 
 
 class Docs(BaseModel):
-    docs: list[Document]
+    docs: list[Document] = Field(
+        ...,
+        description="List of documents to be retrieved",
+    )
 
 
 class GetCurrentWeatherCheckInput(BaseModel):
