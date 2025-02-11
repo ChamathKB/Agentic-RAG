@@ -25,3 +25,8 @@ app.include_router(knowledgebases.router, prefix="/knowledgebases")
 @app.get("/")
 def root():
     return {"message": "Welcome to Agentic RAG"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
