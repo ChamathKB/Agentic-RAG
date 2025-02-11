@@ -1,5 +1,5 @@
-from langchain.tools.tavily_search import TavilySearchResults
-from langchain.utilities.tavily_search import TavilySearchAPIWrapper
+from langchain_community.tools.tavily_search.tool import TavilySearchResults
+from langchain_community.utilities.tavily_search import TavilySearchAPIWrapper
 
 from app.configs import TAVILY_API_KEY
 
