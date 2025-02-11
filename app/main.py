@@ -1,35 +1,25 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-# from contextlib import asynccontextmanager
 from app.db.mongodb import mongodb
 from app.db.redis import redis
 from app.routes import knowledgebases, queries
 
-app = FastAPI()
 
-app.include_router(queries.router, prefix="/queries")
-app.include_router(knowledgebases.router, prefix="/knowledgebases")
-
-
-@app.on_event("startup")
-async def startup_db():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     await mongodb.connect()
     await redis.connect()
-
-
-@app.on_event("shutdown")
-async def shutdown_db():
+    yield
     await mongodb.close()
     await redis.close()
 
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     await startup_db()
-#     yield
-#     await shutdown_db()
+app = FastAPI(lifespan=lifespan)
 
-# app = FastAPI(lifespan=lifespan)
+app.include_router(queries.router, prefix="/queries")
+app.include_router(knowledgebases.router, prefix="/knowledgebases")
 
 
 @app.get("/")
