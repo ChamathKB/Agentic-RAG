@@ -17,7 +17,7 @@ services:
       - redis
       - qdrant
     command: >
-      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload & \
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 & \
       mlflow server --host 0.0.0.0 --port 5000"
     env_file:
     - .env

@@ -35,7 +35,7 @@ Performance: Combines FastAPI, Redis, and Qdrant to deliver low-latency response
 Run server :
 
 ```
-uvicorn app.main:app --reload
+uvicorn app.main:app
 ```
 
 Run mlflow :
